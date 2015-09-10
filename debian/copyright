@@ -15,8 +15,11 @@ Comment:
 Copyright: 2012,2013 Michael Ossmann <mike@ossmann.com>
 License: GPL-2+
 
-Files: airspy-tools/src/airspy_r820t.c
-Copyright: 2013/2014 Benjamin Vernoux <bvernoux@airspy.com>
+Files: airspy-tools/src/airspy_r820t.c CMakeLists.txt README.md
+       .travis.yml airspy-tools/README.md airspy-tools/src/airspy_gpio*
+       airspy-tools/src/airspy_lib_version* airspy-tools/52-airspy.rules
+       cmake/cmake_uninstall.cmake.in
+Copyright: 2013-2015 Benjamin Vernoux <bvernoux@airspy.com>
 License: GPL-2+
 
 Files: airspy-tools/src/airspy_spiflash.c airspy-tools/src/airspy_info.c
@@ -25,7 +28,7 @@ Copyright: 2012 Jared Boone <jared@sharebrained.com>
            2013/2014 Benjamin Vernoux <bvernoux@airspy.com>
 License: GPL-2+
 
-Files: airspy-tools/getopt/getopt.[ch]
+Files: airspy-tools/getopt/*
 Copyright: 1987-1996,1998-2001 Free Software Foundation, Inc.
 License: LGPL-2.1+
 
@@ -39,8 +42,7 @@ Files: debian/*
 Copyright: 2014 A. Maitland Bottoms <bottoms@debian.org>
 License: GPL-2+
 
-Files: libairspy/src/airspy.[ch] libairspy/src/CMakeLists.txt
-       libairspy/src/airspy_commands.h
+Files: libairspy/*
 Copyright: 2013, Michael Ossmann <mike@ossmann.com>
 	   2012, Jared Boone <jared@sharebrained.com>
 	   2013-2014, Youssef Touil <youssef@airspy.com>
@@ -61,7 +63,7 @@ License:
   disclaimer in the documentation and/or other materials
   provided with the distribution.
  .
-  Neither the name of Great Scott Gadgets nor the names of its
+  Neither the name of AirSpy nor the names of its
   contributors may be used to endorse or promote products derived from
   this software without specific prior written permission.
  .
@@ -83,7 +85,7 @@ Copyright: 2012 Jared Boone
            2013 Benjamin Vernoux
 License: GPL-2+
 
-Files: cmake/modules/FindLIBAIRSPY.cmake
+Files: cmake/modules/FindLIBAIRSPY.cmake cmake/modules/FindThreads.cmake
 Copyright: 2013  Benjamin Vernoux
 License: GPL-2+
 

@@ -8,9 +8,11 @@ This application lets the user control the si5351c chip.
 .SH SYNOPSIS
 .B  airspy_si5351c [OPTIONS]
 .SH OPTIONS
+.IP "-c, --config <n>: print textual configuration information"
 .IP "-n, --register <n>: set register number for subsequent read/write operations"
 .IP "-r, --read: read register specified by last -n argument, or all registers"
 .IP "-w, --write <v>: write register specified by last -n argument with value <v>"
+.IP "[-s serial_number_64bits]: Open board with specified 64bits serial number."
 .SH EXAMPLES
 .IP "airspy_si5351c -n 12 -r # reads from register 12"
 .IP "airspy_si5351c -r # reads all registers"
@@ -21,12 +23,12 @@ Airspy web page:
 .LP
 Other airspy programs:
 .sp
-airspy_r820t(1), airspy_info(1), airspy_rx(1), airspy_spiflash(1)
+airspy_r820t(1), airspy_info(1), airspy_rx(1), airspy_spiflash(1), airspy_gpio(1), airspy_gpiodir(1), airspy_lib_version(1)
 .SH AUTHOR
 This manual page was written by Maitland Bottoms
 for the Debian project (but may be used by others).
 .SH COPYRIGHT
-Copyright (c) 2014 A. Maitland Bottoms <bottoms@debian.org>
+Copyright (c) 2014-2015 A. Maitland Bottoms <bottoms@debian.org>
 .LP
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
