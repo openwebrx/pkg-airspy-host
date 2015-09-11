@@ -1,3 +1,9 @@
+airspy-host (1.0.6-2) unstable; urgency=low
+
+  * add watch file, dh-acc, Vcs-* updates
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 10 Sep 2015 22:56:10 -0400
+
 airspy-host (1.0.6-1) unstable; urgency=medium
 
   * New upstream release

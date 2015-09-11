@@ -7,7 +7,7 @@ Source: See debian.rules get-orig-source target
 Comment:
  Debian packages by A. Maitland Bottoms
  .
- Upstream Authors: 
+ Upstream Authors:
  Benjamin Vernoux bvernoux@airspy.com
  Youssef Touil youssef@airspy.com
  Michael Ossmann <mike@ossmann.com>
@@ -124,7 +124,7 @@ License:
  2. Redistributions in binary form must reproduce the copyright
     notice, this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products 
+ 3. The name of the author may not be used to endorse or promote products
     derived from this software without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
