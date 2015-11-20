@@ -1,3 +1,9 @@
+airspy-host (1.0.6-3) unstable; urgency=medium
+
+  * Lintian fixes
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 19 Nov 2015 19:05:30 -0500
+
 airspy-host (1.0.6-2) unstable; urgency=low
 
   * add watch file, dh-acc, Vcs-* updates
