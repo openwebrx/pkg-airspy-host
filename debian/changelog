@@ -1,3 +1,18 @@
+airspy-host (1.0.6-4) unstable; urgency=medium
+
+  * Upstream fixes
+    On linux check whether a kernel driver is attached t
+    Linux moved libusb_detach_kernel_driver before libus
+    Support cross compilation via MinGW64
+    cmake Use LIB_SUFFIX for libairspy.pc
+    fix for repeat of usage message x19
+    Added the ability to customize the IQ conversion FIR
+    Optimized the IQ conversion code
+    Fixed a c p error
+    Fix Buffer overflow 30 thanks to Nicolasp38
+  
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 25 Nov 2015 20:33:53 -0500
+
 airspy-host (1.0.6-3) unstable; urgency=medium
 
   * Lintian fixes

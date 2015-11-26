@@ -1,0 +1,82 @@
+From 4f543231ea434973e1ee871693de9b8075f43a69 Mon Sep 17 00:00:00 2001
+From: Martin Hauke <mardnh@gmx.de>
+Date: Thu, 17 Sep 2015 21:20:19 +0200
+Subject: [PATCH 03/10] Support cross-compilation via MinGW64
+
+---
+ CMakeLists.txt                    |  2 +-
+ cmake/modules/FindUSB1.cmake      | 11 +++++------
+ libairspy/src/iqconverter_float.c |  2 +-
+ libairspy/src/iqconverter_int16.c |  2 +-
+ 4 files changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index dd27de9..743683f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -24,7 +24,7 @@ add_custom_target(uninstall
+ # Copy Files Win32 only
+ ########################################################################
+ 
+-if(WIN32)
++if(WIN32 AND NOT CMAKE_CROSSCOMPILING)
+  configure_file(
+      ${CMAKE_CURRENT_BINARY_DIR}/../libs_win32/libusb-1.0.dll
+      ${CMAKE_CURRENT_BINARY_DIR}/airspy-tools/src/libusb-1.0.dll
+diff --git a/cmake/modules/FindUSB1.cmake b/cmake/modules/FindUSB1.cmake
+index 0cbf802..cc3fb92 100644
+--- a/cmake/modules/FindUSB1.cmake
++++ b/cmake/modules/FindUSB1.cmake
+@@ -17,12 +17,11 @@ if (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
+   set(LIBUSB_FOUND TRUE)
+ 
+ else (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
+-  IF (NOT WIN32)
+-    # use pkg-config to get the directories and then use these values
+-    # in the FIND_PATH() and FIND_LIBRARY() calls
+-    find_package(PkgConfig)
++
++  find_package(PkgConfig)
++  if(PKG_CONFIG_FOUND)
+     pkg_check_modules(PC_LIBUSB libusb-1.0)
+-  ENDIF(NOT WIN32)
++  endif(PKG_CONFIG_FOUND)
+ 
+   FIND_PATH(LIBUSB_INCLUDE_DIR libusb.h
+     PATHS ${PC_LIBUSB_INCLUDEDIR} ${PC_LIBUSB_INCLUDE_DIRS})
+@@ -35,4 +34,4 @@ else (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
+ 
+   MARK_AS_ADVANCED(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARIES)
+ 
+-endif (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
+\ No newline at end of file
++endif (LIBUSB_INCLUDE_DIR AND LIBUSB_LIBRARIES)
+diff --git a/libairspy/src/iqconverter_float.c b/libairspy/src/iqconverter_float.c
+index 004c846..f18c01c 100644
+--- a/libairspy/src/iqconverter_float.c
++++ b/libairspy/src/iqconverter_float.c
+@@ -38,7 +38,7 @@ THE SOFTWARE.
+   #define _aligned_free(mem) free(mem)
+   #define _inline inline
+   #define FIR_STANDARD
+-#elif defined(__GNUC__)
++#elif defined(__GNUC__) && !defined(__MINGW64_VERSION_MAJOR)
+   #include <malloc.h>
+   #define _aligned_malloc(size, alignment) memalign(alignment, size)
+   #define _aligned_free(mem) free(mem)
+diff --git a/libairspy/src/iqconverter_int16.c b/libairspy/src/iqconverter_int16.c
+index 1c15429..a781a49 100644
+--- a/libairspy/src/iqconverter_int16.c
++++ b/libairspy/src/iqconverter_int16.c
+@@ -34,7 +34,7 @@ THE SOFTWARE.
+   #define _aligned_malloc(size, alignment) malloc(size)
+   #define _aligned_free(mem) free(mem)
+   #define _inline inline
+-#elif defined(__GNUC__)
++#elif defined(__GNUC__) && !defined(__MINGW64_VERSION_MAJOR)
+   #include <malloc.h>
+   #define _aligned_malloc(size, alignment) memalign(alignment, size)
+   #define _aligned_free(mem) free(mem)
+-- 
+2.1.4
+

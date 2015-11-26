@@ -1,0 +1,66 @@
+From 1cc48ecfab73eca8a0c8c6dbf825d69192c5fc7b Mon Sep 17 00:00:00 2001
+From: Youssef <youssef@airspy.com>
+Date: Sat, 3 Oct 2015 23:52:22 +0200
+Subject: [PATCH 06/10] Added the ability to customize the IQ conversion FIR
+ filter; Changed the size factor of the FIR processor from 2 to 16.
+
+---
+ libairspy/src/airspy.c            | 22 ++++++++++++++++++++++
+ libairspy/src/airspy.h            |  3 +++
+ libairspy/src/iqconverter_float.c |  2 +-
+ 3 files changed, 26 insertions(+), 1 deletion(-)
+
+--- a/libairspy/src/airspy.c
++++ b/libairspy/src/airspy.c
+@@ -1333,6 +1333,28 @@
+ 		}
+ 	}
+ 
++	int ADDCALL airspy_set_conversion_filter_float32(struct airspy_device* device, const float *kernel, const uint32_t len)
++	{
++		if (device->streaming)
++		{
++			return AIRSPY_ERROR_BUSY;
++		}
++
++		iqconverter_float_free(device->cnv_f);
++		device->cnv_f = iqconverter_float_create(kernel, len);
++	}
++
++	int ADDCALL airspy_set_conversion_filter_int16(struct airspy_device* device, const int16_t *kernel, const uint32_t len)
++	{
++		if (device->streaming)
++		{
++			return AIRSPY_ERROR_BUSY;
++		}
++
++		iqconverter_int16_free(device->cnv_i);
++		device->cnv_i = iqconverter_int16_create(kernel, len);
++	}
++
+ 	int ADDCALL airspy_set_lna_gain(airspy_device_t* device, uint8_t value)
+ 	{
+ 		int result;
+--- a/libairspy/src/airspy.h
++++ b/libairspy/src/airspy.h
+@@ -126,6 +126,9 @@
+ extern ADDAPI int ADDCALL airspy_get_samplerates(struct airspy_device* device, uint32_t* buffer, const uint32_t len);
+ extern ADDAPI int ADDCALL airspy_set_samplerate(struct airspy_device* device, uint32_t samplerate);
+ 
++extern ADDAPI int ADDCALL airspy_set_conversion_filter_float32(struct airspy_device* device, const float *kernel, const uint32_t len);
++extern ADDAPI int ADDCALL airspy_set_conversion_filter_int16(struct airspy_device* device, const int16_t *kernel, const uint32_t len);
++
+ extern ADDAPI int ADDCALL airspy_start_rx(struct airspy_device* device, airspy_sample_block_cb_fn callback, void* rx_ctx);
+ extern ADDAPI int ADDCALL airspy_stop_rx(struct airspy_device* device);
+ 
+--- a/libairspy/src/iqconverter_float.c
++++ b/libairspy/src/iqconverter_float.c
+@@ -52,7 +52,7 @@
+ 	#endif
+ #endif
+ 
+-#define SIZE_FACTOR 2
++#define SIZE_FACTOR 16
+ #define DEFAULT_ALIGNMENT 16
+ #define HPF_COEFF 0.01f
+ 

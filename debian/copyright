@@ -58,8 +58,7 @@ Files: cmake/modules/FindLIBAIRSPY.cmake cmake/modules/FindThreads.cmake
 Copyright: 2013  Benjamin Vernoux
 License: GPL-2+
 
-Files: libairspy/src/iqconverter_int16.[ch] libairspy/src/iqconverter_float.[ch]
- libairspy/src/filters.h
+Files: libairspy/src/iqconverter* libairspy/src/filters.h
 Copyright: 2014, Youssef Touil <youssef@airspy.com>
 License: MIT
 

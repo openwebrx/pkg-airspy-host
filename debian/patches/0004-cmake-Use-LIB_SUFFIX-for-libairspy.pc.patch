@@ -1,0 +1,34 @@
+From 68ebe879fc30a31e70d8bdd7c1a4cd2fa41dc450 Mon Sep 17 00:00:00 2001
+From: Martin Hauke <mardnh@gmx.de>
+Date: Sat, 19 Sep 2015 22:50:23 +0200
+Subject: [PATCH 04/10] cmake: Use LIB_SUFFIX for libairspy.pc
+
+---
+ libairspy/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libairspy/CMakeLists.txt b/libairspy/CMakeLists.txt
+index 5e88679..78636c8 100644
+--- a/libairspy/CMakeLists.txt
++++ b/libairspy/CMakeLists.txt
+@@ -101,7 +101,7 @@ ENDIF(CMAKE_CROSSCOMPILING)
+ 
+ set(prefix ${CMAKE_INSTALL_PREFIX})
+ set(exec_prefix \${prefix})
+-set(libdir \${exec_prefix}/lib)
++set(libdir \${exec_prefix}/lib${LIB_SUFFIX})
+ set(includedir \${prefix}/include)
+ 
+ CONFIGURE_FILE(
+@@ -111,7 +111,7 @@ CONFIGURE_FILE(
+ 
+ INSTALL(
+     FILES ${CMAKE_CURRENT_BINARY_DIR}/libairspy.pc
+-    DESTINATION lib/pkgconfig
++    DESTINATION lib${LIB_SUFFIX}/pkgconfig
+ )
+ 
+ ########################################################################
+-- 
+2.1.4
+

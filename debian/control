@@ -13,7 +13,7 @@ Section: libdevel
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libairspy0 (= ${binary:Version}), ${misc:Depends}
-Description: Tiny and efficient software defined radio receiver
+Description: Tiny and efficient software defined radio receiver - development
  Airspy is an open source Software Defined Radio that can receive
  between 24 MHz and 1750 MHz. Airspy has a 10 MHz bandwidth.
  12bit ADC @ 20 MSPS (80dB SFDR, 64dB SNR, 10.4 ENOB)
@@ -22,12 +22,11 @@ Description: Tiny and efficient software defined radio receiver
  This package contains development files.
 
 Package: libairspy0
-Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Multi-Arch: same
-Description: Tiny and efficient software defined radio receiver
+Description: Tiny and efficient software defined radio receiver - library
  Airspy is an open source Software Defined Radio that can receive
  between 24 MHz and 1750 MHz. Airspy has a 10 MHz bandwidth.
  12bit ADC @ 20 MSPS (80dB SFDR, 64dB SNR, 10.4 ENOB)
@@ -39,7 +38,7 @@ Package: airspy
 Section: comm
 Architecture: any
 Depends: libairspy0 (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
-Description: Tiny and efficient software defined radio receiver
+Description: Tiny and efficient software defined radio receiver - utilities
  Airspy is an open source Software Defined Radio that can receive
  between 24 MHz and 1750 MHz. Airspy has a 10 MHz bandwidth.
  12bit ADC @ 20 MSPS (80dB SFDR, 64dB SNR, 10.4 ENOB)

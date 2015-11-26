@@ -1,6 +1,6 @@
 --- a/cmake/modules/FindUSB1.cmake
 +++ b/cmake/modules/FindUSB1.cmake
-@@ -27,7 +27,16 @@
+@@ -26,7 +26,16 @@
    FIND_PATH(LIBUSB_INCLUDE_DIR libusb.h
      PATHS ${PC_LIBUSB_INCLUDEDIR} ${PC_LIBUSB_INCLUDE_DIRS})
  
