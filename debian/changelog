@@ -1,3 +1,9 @@
+airspy-host (1.0.7-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 14 Dec 2015 00:50:54 -0500
+
 airspy-host (1.0.6-4) unstable; urgency=medium
 
   * Upstream fixes

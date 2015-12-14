@@ -1,10 +1,2 @@
 0001-On-linux-check-whether-a-kernel-driver-is-attached-t.patch
-0002-Linux-moved-libusb_detach_kernel_driver-before-libus.patch
-0003-Support-cross-compilation-via-MinGW64.patch
-0004-cmake-Use-LIB_SUFFIX-for-libairspy.pc.patch
-0005-fix-for-repeat-of-usage-message-x19.patch
-0006-Added-the-ability-to-customize-the-IQ-conversion-FIR.patch
-0007-Optimized-the-IQ-conversion-code.patch
-0008-Fixed-a-c-p-error.patch
-0010-Fix-Buffer-overflow-30-thanks-to-Nicolasp38.patch
 libusb-freebsd

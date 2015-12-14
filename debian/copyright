@@ -16,7 +16,7 @@ Copyright: 2012,2013 Michael Ossmann <mike@ossmann.com>
 License: GPL-2+
 
 Files: airspy-tools/src/airspy_r820t.c CMakeLists.txt README.md
-       .travis.yml airspy-tools/README.md airspy-tools/src/airspy_gpio*
+       airspy-tools/README.md airspy-tools/src/airspy_gpio*
        airspy-tools/src/airspy_lib_version* airspy-tools/52-airspy.rules
        cmake/cmake_uninstall.cmake.in
 Copyright: 2013-2015 Benjamin Vernoux <bvernoux@airspy.com>
