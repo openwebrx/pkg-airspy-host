@@ -2,7 +2,12 @@ Source: airspy-host
 Section: libs
 Priority: extra
 Maintainer: A. Maitland Bottoms <bottoms@debian.org>
-Build-Depends: cmake, debhelper (>= 9.0.0~), libusb-1.0-0-dev, pkg-config
+Build-Depends: cmake,
+               debhelper (>= 9.0.0~),
+               libusb-1.0-0-dev [linux-any],
+               libusb-dev [hurd-i386],
+               libusb2-dev [kfreebsd-any],
+               pkg-config
 Standards-Version: 3.9.6
 Homepage: http://airspy.com
 Vcs-Git: git://anonscm.debian.org/users/bottoms/pkg-airspy-host.git
