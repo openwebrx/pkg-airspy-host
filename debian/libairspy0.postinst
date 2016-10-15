@@ -4,10 +4,6 @@ set -e
 
 #DEBHELPER#
 
-if [ "$1" = "configure" ]; then
-        ldconfig
-fi
-
 # same test as udev postinst...
 chrooted() {
   if [ "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];

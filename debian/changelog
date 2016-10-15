@@ -1,3 +1,10 @@
+airspy-host (1.0.9-1) unstable; urgency=medium
+
+  * New upstream release
+  * Allow all console users access via udev, Thanks Petter! (Closes: #840384)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 12 Oct 2016 20:03:21 -0400
+
 airspy-host (1.0.8-1) unstable; urgency=medium
 
   * New upstream release
