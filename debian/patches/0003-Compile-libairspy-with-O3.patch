@@ -1,0 +1,25 @@
+From 926dda82a74647c6ba9e85b6ac387ac4e4ceb941 Mon Sep 17 00:00:00 2001
+From: Youssef <youssef@airspy.com>
+Date: Thu, 30 Mar 2017 23:29:42 +0200
+Subject: [PATCH 03/12] Compile libairspy with -O3
+
+---
+ libairspy/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libairspy/CMakeLists.txt b/libairspy/CMakeLists.txt
+index ab1aeaf..bfd7826 100644
+--- a/libairspy/CMakeLists.txt
++++ b/libairspy/CMakeLists.txt
+@@ -42,7 +42,7 @@ set(PACKAGE libairspy)
+ set(VERSION_STRING ${AIRSPY_VER_MAJOR}.${AIRSPY_VER_MINOR})
+ set(VERSION ${VERSION_STRING})
+ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
+-set(CMAKE_C_FLAGS_RELEASE "-O2")
++set(CMAKE_C_FLAGS_RELEASE "-O3")
+ set(CMAKE_BUILD_TYPE Release)
+ 
+ if(APPLE)
+-- 
+2.11.0
+

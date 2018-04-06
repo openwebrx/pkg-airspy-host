@@ -1,1 +1,2 @@
 usr/lib/*/lib*.so.*
+debian/com.airspy.host.metainfo.xml usr/share/metainfo
