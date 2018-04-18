@@ -18,7 +18,7 @@ License: GPL-2+
 Files: airspy-tools/src/airspy_r820t.c CMakeLists.txt README.md
        airspy-tools/README.md airspy-tools/src/airspy_gpio*
        airspy-tools/src/airspy_lib_version* airspy-tools/52-airspy.rules
-       cmake/cmake_uninstall.cmake.in
+       cmake/cmake_uninstall.cmake.in airspy-tools/LICENSE.md
 Copyright: 2013-2015 Benjamin Vernoux <bvernoux@airspy.com>
 License: GPL-2+
 

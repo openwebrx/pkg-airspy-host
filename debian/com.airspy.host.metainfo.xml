@@ -14,6 +14,6 @@
     </p>
   </description>
   <provides>
-    <modalias>usb:v1d50p60a1d*</modalias>
+    <modalias>usb:v1D50p60A1d*</modalias>
   </provides>
 </component>
