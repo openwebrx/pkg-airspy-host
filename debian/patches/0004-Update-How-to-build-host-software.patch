@@ -1,7 +1,7 @@
 From 43946276f71d49f1acf655149d17bc873bcaca9b Mon Sep 17 00:00:00 2001
 From: Benjamin Vernoux <bvernoux@gmail.com>
 Date: Tue, 11 Apr 2017 14:05:17 +0200
-Subject: [PATCH 04/12] Update How to build host software
+Subject: [PATCH 04/19] Update How to build host software
 
 ---
  README.md | 13 ++++++++++---
@@ -37,5 +37,5 @@ index 218b017..aeb8992 100644
  
  `mkdir build`
 -- 
-2.11.0
+2.20.1
 

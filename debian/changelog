@@ -1,3 +1,12 @@
+airspy-host (1.0.9-4) unstable; urgency=medium
+
+  * update to v1.0.9-21-g652fd7f
+  * update Standards-Version (no changes)
+  * update debian/watch
+  * Use TAG+="uaccess" in udev rule
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 17 Dec 2020 19:31:33 -0500
+
 airspy-host (1.0.9-3) unstable; urgency=medium
 
   * VCS to salsa
@@ -42,7 +51,7 @@ airspy-host (1.0.6-4) unstable; urgency=medium
     Optimized the IQ conversion code
     Fixed a c p error
     Fix Buffer overflow 30 thanks to Nicolasp38
-  
+
  -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 25 Nov 2015 20:33:53 -0500
 
 airspy-host (1.0.6-3) unstable; urgency=medium
@@ -75,7 +84,7 @@ airspy-host (0.2.22.b4c38a7-1) unstable; urgency=low
      airspy_gpio_write() and airspy_set_rf_bias() only for AirSpy NOS.
     Added a function stub for RF bias (bias-tee, phantom-power)
     Added function stubs for extra hardware sample rates
-  
+
  -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 20 Aug 2014 10:31:26 -0400
 
 airspy-host (0.2.14.f26db23-1) unstable; urgency=low

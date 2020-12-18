@@ -1,7 +1,7 @@
 From b38c7cf2df519bea9a1b9e98866f93cf345a6981 Mon Sep 17 00:00:00 2001
 From: labomb <labomb@rochester.rr.com>
 Date: Sat, 25 Feb 2017 16:12:40 -0500
-Subject: [PATCH 01/12] incorrect cflags include path
+Subject: [PATCH 01/19] incorrect cflags include path
 
 ---
  libairspy/libairspy.pc.in | 2 +-
@@ -20,5 +20,5 @@ index 5a29a83..95c1e93 100644
  Libs: -L${libdir} -lairspy
  Libs.private: @AIRSPY_PC_LIBS@
 -- 
-2.11.0
+2.20.1
 

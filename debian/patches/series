@@ -14,6 +14,8 @@
 0014-Create-LICENSE.md-gpl-2.0-for-airspy-tools.patch
 0015-Rename-LICENSE-to-LICENSE.md.patch
 0016-Create-LICENSE.md-lgpl-2.1-for-libairspy-vc-getopt.patch
+0017-airspy_open_device-bugfix-use-the-code-in-airspy_lis.patch
+0018-Removed-unnecessary-optimization-flags-from-CMakeLis.patch
+0019-License-clarifications-for-libairspy-thanks-to-nowls.patch
 libusb-freebsd
-udev-console-access
 On-linux-check-whether-a-kernel-driver-is-attached

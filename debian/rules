@@ -1,11 +1,6 @@
 #!/usr/bin/make -f
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 export DEB_HOST_MULTIARCH
-DEB_DEBIAN_DIR=$(dir $(firstword $(MAKEFILE_LIST)))
-VER=$(shell dpkg-parsechangelog -l$(DEB_DEBIAN_DIR)/changelog \
-              | sed -rne 's,^Version: ([^-]+).*,\1,p')
-#GITREV=$(shell echo $(VER) | sed -rne 's,[0-9]+\.[0-9]+\.[0-9]+\.([0-f]+),\1,p')
-GITREV=v$(VER)
 
 %:
 	dh $@ --builddirectory=build
@@ -15,7 +10,7 @@ override_dh_acc:
 	- cat debian/libairspy-dev/usr/lib/x86_64-linux-gnu/dh-acc/libairspy-dev_1.0.9-1_report.html
 
 override_dh_auto_configure:
-	dh_auto_configure --builddirectory=build -- -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH)
+	dh_auto_configure --builddirectory=build -- -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH) -DCMAKE_BUILD_TYPE=Release
 
 override_dh_makeshlibs:
 	dh_makeshlibs -V 'libairspy0 (>= 1.0.9~)'

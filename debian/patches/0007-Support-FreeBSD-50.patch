@@ -1,7 +1,7 @@
 From 681dd6c82438333eca8d900de8c00346abff1f83 Mon Sep 17 00:00:00 2001
 From: Unitrunker <unitrunker@gmail.com>
 Date: Sat, 6 Jan 2018 13:20:43 -0600
-Subject: [PATCH 07/12] Support FreeBSD (#50)
+Subject: [PATCH 07/19] Support FreeBSD (#50)
 
 * Support FreeBSD
 * FreeBSD build instructions.
@@ -97,5 +97,5 @@ index d38df68..abb3109 100644
    #include <malloc.h>
    #define _aligned_malloc(size, alignment) memalign(alignment, size)
 -- 
-2.11.0
+2.20.1
 

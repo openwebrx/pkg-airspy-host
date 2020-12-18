@@ -1,7 +1,7 @@
 From 871fcdc6e841cae6e6b2a58fcd6596b7f7722ad2 Mon Sep 17 00:00:00 2001
 From: Unitrunker <unitrunker@gmail.com>
 Date: Sun, 7 Jan 2018 09:11:15 -0600
-Subject: [PATCH 08/12] FreeBSD fix for swapped aligned malloc parameters (#51)
+Subject: [PATCH 08/19] FreeBSD fix for swapped aligned malloc parameters (#51)
 
 * FreeBSD fix for swapped aligned malloc parameters
 ---
@@ -22,5 +22,5 @@ index ebf5a56..c656cdb 100644
      return 0;
  }
 -- 
-2.11.0
+2.20.1
 

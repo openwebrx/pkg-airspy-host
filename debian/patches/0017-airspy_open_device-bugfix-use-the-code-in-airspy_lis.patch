@@ -1,0 +1,59 @@
+From 61fec20fbd710fc54d57dfec732d314d693b5a2f Mon Sep 17 00:00:00 2001
+From: Kenji Rikitake <jj1bdx@users.noreply.github.com>
+Date: Mon, 17 Jun 2019 01:50:00 +0900
+Subject: [PATCH 17/19] airspy_open_device() bugfix: use the code in
+ airspy_list_device() (#63)
+
+* airspy_open_device(): use airspy_list_device() code to determine serial number
+
+* airspy_open_device(): remove unused variables
+---
+ libairspy/src/airspy.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
+
+diff --git a/libairspy/src/airspy.c b/libairspy/src/airspy.c
+index 5aefdd2..3ac3c55 100644
+--- a/libairspy/src/airspy.c
++++ b/libairspy/src/airspy.c
+@@ -620,10 +620,7 @@ static void airspy_open_device(airspy_device_t* device,
+ 	ssize_t cnt;
+ 	int serial_descriptor_index;
+ 	struct libusb_device_descriptor device_descriptor;
+-	char serial_number_expected[SERIAL_AIRSPY_EXPECTED_SIZE + 1];
+ 	unsigned char serial_number[SERIAL_AIRSPY_EXPECTED_SIZE + 1];
+-	uint32_t serial_number_msb_val;
+-	uint32_t serial_number_lsb_val;
+ 
+ 	libusb_dev_handle = &device->usb_device;
+ 	*libusb_dev_handle = NULL;
+@@ -660,17 +657,18 @@ static void airspy_open_device(airspy_device_t* device,
+ 						sizeof(serial_number));
+ 					if (serial_number_len == SERIAL_AIRSPY_EXPECTED_SIZE)
+ 					{
+-						serial_number[SERIAL_AIRSPY_EXPECTED_SIZE] = 0;
+-						upper_string(serial_number, SERIAL_AIRSPY_EXPECTED_SIZE);
+-						serial_number_msb_val = (uint32_t)(serial_number_val >> 32);
+-						serial_number_lsb_val = (uint32_t)(serial_number_val & 0xFFFFFFFF);
++						uint64_t serial = 0;
++						// use same code to determine device's serial number as in airspy_list_devices()
++						{
++							char *start, *end;
+ 
+-						sprintf(serial_number_expected, "%s%08X%08X",
+-							str_prefix_serial_airspy,
+-							serial_number_msb_val,
+-							serial_number_lsb_val);
++							serial_number[SERIAL_AIRSPY_EXPECTED_SIZE] = 0;
++							start = (char*)(serial_number + STR_PREFIX_SERIAL_AIRSPY_SIZE);
++							end = NULL;
++							serial = strtoull(start, &end, 16);
++						}
+ 
+-						if (strncmp((const char*)serial_number, serial_number_expected, SERIAL_AIRSPY_EXPECTED_SIZE) == 0)
++						if (serial == serial_number_val)
+ 						{
+ #ifdef __linux__
+ 							/* Check whether a kernel driver is attached to interface #0. If so, we'll
+-- 
+2.20.1
+

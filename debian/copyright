@@ -1,8 +1,8 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: airspy-host
 Upstream-Contact: Benjamin Vernoux bvernoux@airspy.com and
                   Youssef Touil youssef@airspy.com
-                  http://www.airspy.com
+                  https://www.airspy.com
 Source: See debian.rules get-orig-source target
 Comment:
  Debian packages by A. Maitland Bottoms
@@ -18,7 +18,7 @@ License: GPL-2+
 Files: airspy-tools/src/airspy_r820t.c CMakeLists.txt README.md
        airspy-tools/README.md airspy-tools/src/airspy_gpio*
        airspy-tools/src/airspy_lib_version* airspy-tools/52-airspy.rules
-       cmake/cmake_uninstall.cmake.in airspy-tools/LICENSE.md
+       cmake/cmake_uninstall.cmake.in
 Copyright: 2013-2015 Benjamin Vernoux <bvernoux@airspy.com>
 License: GPL-2+
 
@@ -41,6 +41,10 @@ License: GPL-2+
 Files: debian/*
 Copyright: 2014 A. Maitland Bottoms <bottoms@debian.org>
 License: GPL-2+
+
+Files: debian/com.airspy.host.metainfo.xml
+Copyright: 2020 A. Maitland Bottoms <bottoms@debian.org>
+License: MIT
 
 Files: libairspy/*
 Copyright: 2013, Michael Ossmann <mike@ossmann.com>

@@ -1,10 +1,10 @@
 From 25ea2a9ce43d5c0a652cc8886e5740ff5fb09a10 Mon Sep 17 00:00:00 2001
 From: Benjamin Vernoux <bvernoux@gmail.com>
 Date: Tue, 10 Apr 2018 20:43:09 +0200
-Subject: [PATCH 13/16] Create LICENSE.md lgpl-2.1 for airspy-tools/getopt
+Subject: [PATCH 13/19] Create LICENSE.md lgpl-2.1 for airspy-tools/getopt
 
 ---
- airspy-tools/getopt/LICENSE.md | 504 +++++++++++++++++++++++++++++++++++++++++
+ airspy-tools/getopt/LICENSE.md | 504 +++++++++++++++++++++++++++++++++
  1 file changed, 504 insertions(+)
  create mode 100644 airspy-tools/getopt/LICENSE.md
 
@@ -519,5 +519,5 @@ index 0000000..8000a6f
 +
 +That's all there is to it!
 -- 
-2.11.0
+2.20.1
 

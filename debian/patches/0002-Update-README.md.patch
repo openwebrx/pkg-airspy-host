@@ -1,7 +1,7 @@
 From c38011e58ec47ee7814a703f5976508e44dc407f Mon Sep 17 00:00:00 2001
 From: Benjamin Vernoux <bvernoux@gmail.com>
 Date: Tue, 21 Mar 2017 19:36:45 +0100
-Subject: [PATCH 02/12] Update README.md
+Subject: [PATCH 02/19] Update README.md
 
 ---
  README.md | 18 +++++++++---------
@@ -78,5 +78,5 @@ index 290d3ed..218b017 100644
  Benjamin Vernoux <bvernoux@airspy.com> and Youssef Touil <youssef@airspy.com> 
  
 -- 
-2.11.0
+2.20.1
 

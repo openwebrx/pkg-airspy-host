@@ -1,10 +1,10 @@
 From bfb667080936ca5c2d23b3282f5893931ec38d3f Mon Sep 17 00:00:00 2001
 From: Benjamin Vernoux <bvernoux@gmail.com>
 Date: Tue, 10 Apr 2018 20:57:56 +0200
-Subject: [PATCH 16/16] Create LICENSE.md lgpl-2.1 for libairspy/vc/getopt
+Subject: [PATCH 16/19] Create LICENSE.md lgpl-2.1 for libairspy/vc/getopt
 
 ---
- libairspy/vc/getopt/LICENSE.md | 504 +++++++++++++++++++++++++++++++++++++++++
+ libairspy/vc/getopt/LICENSE.md | 504 +++++++++++++++++++++++++++++++++
  1 file changed, 504 insertions(+)
  create mode 100644 libairspy/vc/getopt/LICENSE.md
 
@@ -519,5 +519,5 @@ index 0000000..8000a6f
 +
 +That's all there is to it!
 -- 
-2.11.0
+2.20.1
 

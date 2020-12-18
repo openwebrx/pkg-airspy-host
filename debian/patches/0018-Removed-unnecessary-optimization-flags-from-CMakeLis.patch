@@ -1,0 +1,40 @@
+From bceca18f9e3a5f89cff78c4d949c71771d92dfd3 Mon Sep 17 00:00:00 2001
+From: leonsal <leonsal@users.noreply.github.com>
+Date: Wed, 4 Dec 2019 04:04:07 -0300
+Subject: [PATCH 18/19] Removed unnecessary optimization flags from
+ CMakeLists.txt files (#67)
+
+These flags were specific for gcc/clang and prevented the
+optimization when compiling on Windows using MSVC.
+---
+ airspy-tools/CMakeLists.txt | 1 -
+ libairspy/CMakeLists.txt    | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/airspy-tools/CMakeLists.txt b/airspy-tools/CMakeLists.txt
+index ccbe242..dd78431 100644
+--- a/airspy-tools/CMakeLists.txt
++++ b/airspy-tools/CMakeLists.txt
+@@ -29,7 +29,6 @@ set(PACKAGE airspy-tools)
+ set(VERSION_STRING ${MAJOR_VERSION}.${MINOR_VERSION})
+ set(VERSION ${VERSION_STRING})
+ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
+-set(CMAKE_C_FLAGS_RELEASE "-O2")
+ set(CMAKE_BUILD_TYPE Release)
+ add_definitions(-D_FILE_OFFSET_BITS=64)
+ 
+diff --git a/libairspy/CMakeLists.txt b/libairspy/CMakeLists.txt
+index bfd7826..22ea035 100644
+--- a/libairspy/CMakeLists.txt
++++ b/libairspy/CMakeLists.txt
+@@ -42,7 +42,6 @@ set(PACKAGE libairspy)
+ set(VERSION_STRING ${AIRSPY_VER_MAJOR}.${AIRSPY_VER_MINOR})
+ set(VERSION ${VERSION_STRING})
+ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake/modules)
+-set(CMAKE_C_FLAGS_RELEASE "-O3")
+ set(CMAKE_BUILD_TYPE Release)
+ 
+ if(APPLE)
+-- 
+2.20.1
+

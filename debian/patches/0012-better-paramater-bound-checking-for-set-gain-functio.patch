@@ -1,7 +1,7 @@
 From eee8452caf92ff53077ea1a855e67dba4769ab8d Mon Sep 17 00:00:00 2001
 From: Thierry Leconte <23015573+TLeconte@users.noreply.github.com>
 Date: Sun, 25 Feb 2018 20:21:26 +0100
-Subject: [PATCH 12/12] better paramater bound checking for set gain functions
+Subject: [PATCH 12/19] better parameter bound checking for set gain functions
  (#55)
 
 ---
@@ -51,5 +51,5 @@ index 555ba45..5aefdd2 100644
  		rc = airspy_set_mixer_agc(device, 0);
  		if (rc < 0)
 -- 
-2.11.0
+2.20.1
 

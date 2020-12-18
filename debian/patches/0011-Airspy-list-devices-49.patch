@@ -1,13 +1,13 @@
 From fe2a8f900bc413745e9a061193c755066d8df027 Mon Sep 17 00:00:00 2001
 From: Martin Herren <sputnik@on-the-web.ch>
 Date: Fri, 2 Feb 2018 18:07:57 +0100
-Subject: [PATCH 11/12] Airspy list devices (#49)
+Subject: [PATCH 11/19] Airspy list devices (#49)
 
 * Add airspy_list_devices() function, copied from airspyhf+. Just a few renamings. Untested !
 * airspy_list_devices accepts NULL as serials pointer to only get the number of devices
 ---
- libairspy/src/airspy.c | 83 ++++++++++++++++++++++++++++++++++++++++++++++++++
- libairspy/src/airspy.h |  4 ++-
+ libairspy/src/airspy.c | 83 ++++++++++++++++++++++++++++++++++++++++++
+ libairspy/src/airspy.h |  4 +-
  2 files changed, 86 insertions(+), 1 deletion(-)
 
 diff --git a/libairspy/src/airspy.c b/libairspy/src/airspy.c
@@ -120,5 +120,5 @@ index 630424d..b8cc4a7 100644
  extern ADDAPI int ADDCALL airspy_open(struct airspy_device** device);
  extern ADDAPI int ADDCALL airspy_close(struct airspy_device* device);
 -- 
-2.11.0
+2.20.1
 

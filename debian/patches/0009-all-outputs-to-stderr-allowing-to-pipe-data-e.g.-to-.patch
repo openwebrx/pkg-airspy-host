@@ -1,14 +1,14 @@
 From e1fb42aa3f29a88149fc356b44dcf8f717ca08c0 Mon Sep 17 00:00:00 2001
 From: hayati ayguen <h_ayguen@web.de>
 Date: Thu, 1 Feb 2018 01:46:47 +0100
-Subject: [PATCH 09/12] all outputs to stderr allowing to pipe data, e.g. to
+Subject: [PATCH 09/19] all outputs to stderr allowing to pipe data, e.g. to
  csdr
 
 additionally allow option '-' as filename to option '-r'
 
 Signed-off-by: hayati ayguen <h_ayguen@web.de>
 ---
- airspy-tools/src/airspy_rx.c | 165 ++++++++++++++++++++++---------------------
+ airspy-tools/src/airspy_rx.c | 165 ++++++++++++++++++-----------------
  1 file changed, 84 insertions(+), 81 deletions(-)
 
 diff --git a/airspy-tools/src/airspy_rx.c b/airspy-tools/src/airspy_rx.c
@@ -486,5 +486,5 @@ index 1cea6d3..a8ece76 100644
  	return exit_code;
  }
 -- 
-2.11.0
+2.20.1
 

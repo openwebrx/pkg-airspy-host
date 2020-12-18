@@ -1,10 +1,10 @@
 From f3bcc922c241a4b42d757f1cc9c6616d132f96e8 Mon Sep 17 00:00:00 2001
 From: Benjamin Vernoux <bvernoux@gmail.com>
 Date: Tue, 10 Apr 2018 20:46:51 +0200
-Subject: [PATCH 14/16] Create LICENSE.md gpl-2.0 for airspy-tools
+Subject: [PATCH 14/19] Create LICENSE.md gpl-2.0 for airspy-tools
 
 ---
- airspy-tools/LICENSE | 339 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ airspy-tools/LICENSE | 339 +++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 339 insertions(+)
  create mode 100644 airspy-tools/LICENSE
 
@@ -354,5 +354,5 @@ index 0000000..d511905
 +library.  If this is what you want to do, use the GNU Lesser General
 +Public License instead of this License.
 -- 
-2.11.0
+2.20.1
 

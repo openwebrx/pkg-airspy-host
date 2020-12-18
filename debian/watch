@@ -1,3 +1,4 @@
-version=3
-opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/v$1.tar.gz/ \
-  https://github.com/airspy/host/tags .*/v?(\d\S*)\.tar\.gz
+version=4
+ opts="filenamemangle=s%(?:.*?)?airspy-host-?(\d[\d.]*)\.tar\.xz%airspy-host_$1.orig.tar.gz%" \
+ https://github.com/airspy/host/releases \
+ (?:.*?/)v(\d[\d.]*)\.tar\.gz debian uupdate

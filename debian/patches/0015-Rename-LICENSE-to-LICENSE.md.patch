@@ -1,7 +1,7 @@
 From 4c2c00565dba13a1410196098e0a612d533770e3 Mon Sep 17 00:00:00 2001
 From: Benjamin Vernoux <bvernoux@gmail.com>
 Date: Tue, 10 Apr 2018 20:47:36 +0200
-Subject: [PATCH 15/16] Rename LICENSE to LICENSE.md
+Subject: [PATCH 15/19] Rename LICENSE to LICENSE.md
 
 ---
  airspy-tools/{LICENSE => LICENSE.md} | 0
@@ -13,5 +13,5 @@ similarity index 100%
 rename from airspy-tools/LICENSE
 rename to airspy-tools/LICENSE.md
 -- 
-2.11.0
+2.20.1
 
