@@ -1,0 +1,42 @@
+From f652e230f31ab88ca35b2f0af8c4b44c81106489 Mon Sep 17 00:00:00 2001
+From: Johan Hedin <johan.o.hedin@gmail.com>
+Date: Sat, 22 May 2021 17:38:09 +0200
+Subject: [PATCH 2/6] Process pending libusb events before shutdown (#78)
+
+* Process pending libusb events before shutdown
+
+After libusb_cancel_transfer, pending events need to be handled to
+avoid memory leaks.
+
+* Do not use deprecated function
+
+Use libusb_handle_events_timeout_completed instead of deprecated libusb_handle_events_timeout.
+---
+ libairspy/src/airspy.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libairspy/src/airspy.c b/libairspy/src/airspy.c
+index afd096c..1f2178b 100644
+--- a/libairspy/src/airspy.c
++++ b/libairspy/src/airspy.c
+@@ -515,6 +515,8 @@ static void* transfer_threadproc(void* arg)
+ 
+ static int kill_io_threads(airspy_device_t* device)
+ {
++	struct timeval timeout = { 0, 0 };
++
+ 	if (device->streaming)
+ 	{
+ 		device->stop_requested = true;
+@@ -527,6 +529,8 @@ static int kill_io_threads(airspy_device_t* device)
+ 		pthread_join(device->transfer_thread, NULL);
+ 		pthread_join(device->consumer_thread, NULL);
+ 
++		libusb_handle_events_timeout_completed(device->usb_context, &timeout, NULL);
++
+ 		device->stop_requested = false;
+ 		device->streaming = false;
+ 	}
+-- 
+2.30.2
+

@@ -1,0 +1,55 @@
+From 7290309a663ced66e1e51dc65c1604e563752310 Mon Sep 17 00:00:00 2001
+From: Johan Hedin <johan.o.hedin@gmail.com>
+Date: Sun, 23 May 2021 16:52:04 +0200
+Subject: [PATCH 3/6] Fix cmake_minimum_required to avoid warnings (#80)
+
+cmake 3.19 warns about dropped compatibility for cmake less than 2.8.12 in
+the future. This patch sets the minimum required version to what's stated
+in README.md to avoid the warning.
+---
+ CMakeLists.txt              | 2 +-
+ airspy-tools/CMakeLists.txt | 2 +-
+ libairspy/CMakeLists.txt    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 65efe39..4a985e0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ #top dir cmake project for libairspy + airspy-tools
+ 
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 2.8.12.1)
+ project (airspy_all)
+ 
+ #provide missing strtoull() for VC11
+diff --git a/airspy-tools/CMakeLists.txt b/airspy-tools/CMakeLists.txt
+index dd78431..495bfbe 100644
+--- a/airspy-tools/CMakeLists.txt
++++ b/airspy-tools/CMakeLists.txt
+@@ -21,7 +21,7 @@
+ 
+ # Based heavily upon the libftdi cmake setup.
+ 
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 2.8.12.1)
+ project(airspy-tools C)
+ set(MAJOR_VERSION 0)
+ set(MINOR_VERSION 2)
+diff --git a/libairspy/CMakeLists.txt b/libairspy/CMakeLists.txt
+index 22ea035..dbcfa02 100644
+--- a/libairspy/CMakeLists.txt
++++ b/libairspy/CMakeLists.txt
+@@ -21,7 +21,7 @@
+ 
+ # Based heavily upon the libftdi cmake setup.
+ 
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 2.8.12.1)
+ project(libairspy C)
+ file(READ ${CMAKE_CURRENT_SOURCE_DIR}/src/airspy.h AIRSPY_H_CONTENTS)
+ 
+-- 
+2.30.2
+

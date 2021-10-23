@@ -1,4 +1,4 @@
-Source: airspy-host
+Source: airspyone-host
 Section: libs
 Priority: optional
 Maintainer: A. Maitland Bottoms <bottoms@debian.org>

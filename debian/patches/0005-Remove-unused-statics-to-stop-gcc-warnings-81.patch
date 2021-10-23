@@ -1,0 +1,51 @@
+From 022870fd88c026c124683fa58531a3a70181ebe9 Mon Sep 17 00:00:00 2001
+From: Johan Hedin <johan.o.hedin@gmail.com>
+Date: Sun, 23 May 2021 16:54:02 +0200
+Subject: [PATCH 5/6] Remove unused statics to stop gcc warnings (#81)
+
+gcc 10 warns about unused static variables and functions.
+---
+ libairspy/src/airspy.c | 19 -------------------
+ 1 file changed, 19 deletions(-)
+
+diff --git a/libairspy/src/airspy.c b/libairspy/src/airspy.c
+index 1f2178b..5f4adcc 100644
+--- a/libairspy/src/airspy.c
++++ b/libairspy/src/airspy.c
+@@ -102,13 +102,7 @@ typedef struct airspy_device
+ static const uint16_t airspy_usb_vid = 0x1d50;
+ static const uint16_t airspy_usb_pid = 0x60a1;
+ 
+-#define STR_PRODUCT_AIRSPY_SIZE (6)
+-static const char str_product_airspy[STR_PRODUCT_AIRSPY_SIZE] =
+-{ 'A', 'I', 'R', 'S', 'P', 'Y' };
+-
+ #define STR_PREFIX_SERIAL_AIRSPY_SIZE (10)
+-static const char str_prefix_serial_airspy[STR_PREFIX_SERIAL_AIRSPY_SIZE] =
+-{ 'A', 'I', 'R', 'S', 'P', 'Y', ' ', 'S', 'N', ':' };
+ 
+ #define SERIAL_AIRSPY_EXPECTED_SIZE (26)
+ 
+@@ -594,19 +588,6 @@ static void airspy_open_exit(airspy_device_t* device)
+ 	device->usb_context = NULL;
+ }
+ 
+-static void upper_string(unsigned char *string, size_t len)
+-{
+-	while (len > 0)
+-	{
+-		if (*string >= 'a' && *string <= 'z')
+-		{
+-			*string = *string - 32;
+-		}
+-		string++;
+-		len--;
+-	}
+-}
+-
+ static void airspy_open_device(airspy_device_t* device,
+ 	int* ret,
+ 	uint16_t vid,
+-- 
+2.30.2
+

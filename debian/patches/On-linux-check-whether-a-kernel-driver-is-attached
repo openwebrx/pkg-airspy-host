@@ -10,7 +10,7 @@ Subject: [PATCH 01/10] On linux check whether a kernel driver is attached to
 
 --- a/libairspy/src/airspy.c
 +++ b/libairspy/src/airspy.c
-@@ -686,6 +686,15 @@
+@@ -671,6 +671,15 @@
  								*libusb_dev_handle = NULL;
  								continue;
  							}
@@ -26,7 +26,7 @@ Subject: [PATCH 01/10] On linux check whether a kernel driver is attached to
  							result = libusb_claim_interface(dev_handle, 0);
  							if (result != 0)
  							{
-@@ -731,6 +740,15 @@
+@@ -716,6 +725,15 @@
  						*libusb_dev_handle = NULL;
  						continue;
  					}

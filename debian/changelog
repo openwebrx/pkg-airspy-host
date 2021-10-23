@@ -1,3 +1,18 @@
+airspyone-host (1.0.10-2) unstable; urgency=medium
+
+  * update to v1.0.10-6-g41c439f
+    Fixed the usb tear down sequence
+  * upload to unstable
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sat, 23 Oct 2021 15:47:37 -0400
+
+airspyone-host (1.0.10-1) experimental; urgency=medium
+
+  * New upstream release, project rename
+  * update to v1.0.10-5-g022870f
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 04 Jul 2021 16:01:32 -0400
+
 airspy-host (1.0.9-4) unstable; urgency=medium
 
   * update to v1.0.9-21-g652fd7f

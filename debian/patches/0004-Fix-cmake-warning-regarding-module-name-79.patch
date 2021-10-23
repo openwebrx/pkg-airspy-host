@@ -1,0 +1,35 @@
+From f4e920625494c6cae9caf9e371467f5d58335093 Mon Sep 17 00:00:00 2001
+From: Johan Hedin <johan.o.hedin@gmail.com>
+Date: Sun, 23 May 2021 16:52:23 +0200
+Subject: [PATCH 4/6] Fix cmake warning regarding module name (#79)
+
+cmake 3.19 prints a warning if variables set from a "find module" does not
+follow the normal pattern, i.e. a find module named FindUSB1.cmake is assumed
+to set variables that begin with USB1_*. This patch renames the module to be
+consistent with the names of the variables set from inside it.
+---
+ cmake/modules/{FindUSB1.cmake => FindLIBUSB.cmake} | 0
+ libairspy/CMakeLists.txt                           | 2 +-
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+ rename cmake/modules/{FindUSB1.cmake => FindLIBUSB.cmake} (100%)
+
+diff --git a/cmake/modules/FindUSB1.cmake b/cmake/modules/FindLIBUSB.cmake
+similarity index 100%
+rename from cmake/modules/FindUSB1.cmake
+rename to cmake/modules/FindLIBUSB.cmake
+diff --git a/libairspy/CMakeLists.txt b/libairspy/CMakeLists.txt
+index dbcfa02..5ea578a 100644
+--- a/libairspy/CMakeLists.txt
++++ b/libairspy/CMakeLists.txt
+@@ -73,7 +73,7 @@ else()
+ 		 add_definitions(-DAIRSPY_BIG_ENDIAN)
+ 	endif(${BIGENDIAN})
+ endif()
+-find_package(USB1 REQUIRED)
++find_package(LIBUSB REQUIRED)
+ find_package(Threads REQUIRED)
+ 
+ include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
+-- 
+2.30.2
+

@@ -1,9 +1,8 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: airspy-host
+Upstream-Name: airspyone_host
 Upstream-Contact: Benjamin Vernoux bvernoux@airspy.com and
                   Youssef Touil youssef@airspy.com
                   https://www.airspy.com
-Source: See debian.rules get-orig-source target
 Comment:
  Debian packages by A. Maitland Bottoms
  .
@@ -12,14 +11,16 @@ Comment:
  Youssef Touil youssef@airspy.com
  Michael Ossmann <mike@ossmann.com>
  Jared Boone <jared@sharebrained.com>
-Copyright: 2012,2013 Michael Ossmann <mike@ossmann.com>
+Copyright: 2013-2021 Benjamin Vernoux <bvernoux@airspy.com>
 License: GPL-2+
+Files-Excluded:
 
 Files: airspy-tools/src/airspy_r820t.c CMakeLists.txt README.md
        airspy-tools/README.md airspy-tools/src/airspy_gpio*
        airspy-tools/src/airspy_lib_version* airspy-tools/52-airspy.rules
        cmake/cmake_uninstall.cmake.in
-Copyright: 2013-2015 Benjamin Vernoux <bvernoux@airspy.com>
+       airspy-tools/LICENSE.md
+Copyright: 2013-2021 Benjamin Vernoux <bvernoux@airspy.com>
 License: GPL-2+
 
 Files: airspy-tools/src/airspy_spiflash.c airspy-tools/src/airspy_info.c
@@ -36,6 +37,10 @@ Files: airspy-tools/CMakeLists.txt airspy-tools/src/CMakeLists.txt
        airspy-tools/src/airspy_si5351c.c airspy-tools/src/airspy_rx.c
 Copyright: 2012 Jared Boone
            2013/2014 Benjamin Vernoux
+License: GPL-2+
+
+Files: .travis.yml
+Copyright: 2014 Steve Markgraf <steve@steve-m.de>
 License: GPL-2+
 
 Files: debian/*

@@ -1,0 +1,53 @@
+From 3f233282d2acddeaf4e93d496ee8a5ec4bed1b28 Mon Sep 17 00:00:00 2001
+From: Johan Hedin <johan.o.hedin@gmail.com>
+Date: Sun, 16 May 2021 18:32:09 +0200
+Subject: [PATCH 1/6] Use device->stop_requested when libusb errors out (#76)
+
+Replace device->streaming = false with device->stop_requested = true for
+USB errors to avoid deadlock on device removal. Also check
+stop_requested when checking if streaming or not to be consistent with
+the old behaviour.
+---
+ libairspy/src/airspy.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/libairspy/src/airspy.c b/libairspy/src/airspy.c
+index 3ac3c55..afd096c 100644
+--- a/libairspy/src/airspy.c
++++ b/libairspy/src/airspy.c
+@@ -477,12 +477,12 @@ static void airspy_libusb_transfer_callback(struct libusb_transfer* usb_transfer
+ 
+ 		if (libusb_submit_transfer(usb_transfer) != 0)
+ 		{
+-			device->streaming = false;
++			device->stop_requested = true;
+ 		}
+ 	}
+ 	else
+ 	{
+-		device->streaming = false;
++		device->stop_requested = true;
+ 	}
+ }
+ 
+@@ -504,7 +504,7 @@ static void* transfer_threadproc(void* arg)
+ 		if (error < 0)
+ 		{
+ 			if (error != LIBUSB_ERROR_INTERRUPTED)
+-				device->streaming = false;
++				device->stop_requested = true;
+ 		}
+ 	}
+ 
+@@ -1872,7 +1872,7 @@ int airspy_list_devices(uint64_t *serials, int count)
+ 
+ 	int ADDCALL airspy_is_streaming(airspy_device_t* device)
+ 	{
+-		return device->streaming == true;
++		return (device->streaming == true && device->stop_requested == false);
+ 	}
+ 
+ 	const char* ADDCALL airspy_error_name(enum airspy_error errcode)
+-- 
+2.30.2
+

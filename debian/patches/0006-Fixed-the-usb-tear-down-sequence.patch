@@ -1,0 +1,3054 @@
+From 41c439f16818d931c4d0f8a620413ea5131c0bd6 Mon Sep 17 00:00:00 2001
+From: Youssef <youssef@airspy.com>
+Date: Mon, 13 Sep 2021 01:16:48 +0200
+Subject: [PATCH 6/6] Fixed the usb tear-down sequence.
+
+---
+ libairspy/src/airspy.c                        |   2 +-
+ libairspy/src/airspy.h                        |   4 +-
+ libairspy/src/win32/airspy.rc                 |   8 +-
+ libairspy/vc/airspy_2013.vcxproj              |  38 +-
+ .../vc/{airspy_2013.sln => airspy_2019.sln}   |   0
+ libairspy/vc/airspy_gpio_2013.vcxproj         | 347 +++++++++---------
+ libairspy/vc/airspy_gpiodir_2013.vcxproj      | 347 +++++++++---------
+ libairspy/vc/airspy_info_2013.vcxproj         | 347 +++++++++---------
+ libairspy/vc/airspy_lib_version_2013.vcxproj  | 347 +++++++++---------
+ libairspy/vc/airspy_r820t_2013.vcxproj        | 347 +++++++++---------
+ libairspy/vc/airspy_rx_2013.vcxproj           | 347 +++++++++---------
+ libairspy/vc/airspy_si5351c_2013.vcxproj      | 347 +++++++++---------
+ libairspy/vc/airspy_spiflash_2013.vcxproj     | 347 +++++++++---------
+ 13 files changed, 1437 insertions(+), 1391 deletions(-)
+ rename libairspy/vc/{airspy_2013.sln => airspy_2019.sln} (100%)
+
+diff --git a/libairspy/src/airspy.c b/libairspy/src/airspy.c
+index 5f4adcc..427ffe2 100644
+--- a/libairspy/src/airspy.c
++++ b/libairspy/src/airspy.c
+@@ -985,8 +985,8 @@ int airspy_list_devices(uint64_t *serials, int count)
+ 			pthread_cond_destroy(&device->consumer_cv);
+ 			pthread_mutex_destroy(&device->consumer_mp);
+ 
+-			airspy_open_exit(device);
+ 			free_transfers(device);
++			airspy_open_exit(device);
+ 			free(device->supported_samplerates);
+ 			free(device);
+ 		}
+diff --git a/libairspy/src/airspy.h b/libairspy/src/airspy.h
+index ab78e2f..ff83033 100644
+--- a/libairspy/src/airspy.h
++++ b/libairspy/src/airspy.h
+@@ -28,10 +28,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
+ #include <stdint.h>
+ #include "airspy_commands.h"
+ 
+-#define AIRSPY_VERSION "1.0.10"
++#define AIRSPY_VERSION "1.0.11"
+ #define AIRSPY_VER_MAJOR 1
+ #define AIRSPY_VER_MINOR 0
+-#define AIRSPY_VER_REVISION 10
++#define AIRSPY_VER_REVISION 11
+ 
+ #ifdef _WIN32
+ 	 #define ADD_EXPORTS
+diff --git a/libairspy/src/win32/airspy.rc b/libairspy/src/win32/airspy.rc
+index 5457f3e..f01a624 100644
+--- a/libairspy/src/win32/airspy.rc
++++ b/libairspy/src/win32/airspy.rc
+@@ -23,14 +23,14 @@ BEGIN
+     BLOCK "040904E4"
+     //language ID = U.S. English, char set = Windows, Multilingual
+     BEGIN
+-      VALUE "FileDescription",	"AirSpy library\0"
++      VALUE "FileDescription",	"Airspy library\0"
+       VALUE "FileVersion",	AIRSPY_VERSION "\0"
+       VALUE "InternalName",	"airspy.dll\0"
+-      VALUE "LegalCopyright",	"(C) 2013-2016 AirSpy\0"
++      VALUE "LegalCopyright",	"(C) 2013-2021 Airspy\0"
+       VALUE "OriginalFilename",	"airspy.dll\0"
+-      VALUE "ProductName",	"airspy\0"
++      VALUE "ProductName",	"Airspy SDR\0"
+       VALUE "ProductVersion",	AIRSPY_VERSION "\0"
+-      VALUE "Comments",		"For more information visit http://www.airspy.com\0"
++      VALUE "Comments",		"For more information visit https://www.airspy.com\0"
+     END
+   END
+   BLOCK "VarFileInfo"
+diff --git a/libairspy/vc/airspy_2013.vcxproj b/libairspy/vc/airspy_2013.vcxproj
+index dfa4933..99c3e1c 100644
+--- a/libairspy/vc/airspy_2013.vcxproj
++++ b/libairspy/vc/airspy_2013.vcxproj
+@@ -23,31 +23,32 @@
+     <Keyword>Win32Proj</Keyword>
+     <Platform>Win32</Platform>
+     <ProjectName>airspy</ProjectName>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -84,23 +85,23 @@
+     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <LibraryPath>..\..\libusb-1.0.20\MS32\dll;..\..\libpthread-2-9-1-win\lib\x86;$(LibraryPath)</LibraryPath>
+-    <IncludePath>..\..\libusb-1.0.20\include\libusb-1.0;..\..\libpthread-2-9-1-win\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
++    <LibraryPath>$(projecdir)..\..\libusb-1.0.20\MS32\dll;$(projecdir)..\..\libpthread-2-9-1-win\lib\x86;$(LibraryPath)</LibraryPath>
++    <IncludePath>$(projectdir)..\..\libusb-1.0.20\include\libusb-1.0;$(projectdir)..\..\libpthread-2-9-1-win\include;$(IncludePath)</IncludePath>
+     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <LibraryPath>..\..\libusb-1.0.20\MS64\dll;..\..\libpthread-2-9-1-win\lib\x64;$(LibraryPath)</LibraryPath>
+-    <IncludePath>..\..\libusb-1.0.20\include\libusb-1.0;..\..\libpthread-2-9-1-win\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
++    <LibraryPath>$(projectdir)..\..\libusb-1.0.20\MS64\dll;$(projectdir)..\..\libpthread-2-9-1-win\lib\x64;$(LibraryPath)</LibraryPath>
++    <IncludePath>$(projectdir)..\..\libusb-1.0.20\include\libusb-1.0;$(projectdir)..\..\libpthread-2-9-1-win\include;$(IncludePath)</IncludePath>
+     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <LibraryPath>..\..\libusb-1.0.20\MS32\dll;..\..\libpthread-2-9-1-win\lib\x86;$(LibraryPath)</LibraryPath>
+-    <IncludePath>..\..\libusb-1.0.20\include\libusb-1.0;..\..\libpthread-2-9-1-win\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
++    <LibraryPath>$(projecdir)..\..\libusb-1.0.20\MS32\dll;$(projecdir)..\..\libpthread-2-9-1-win\lib\x86;$(LibraryPath)</LibraryPath>
++    <IncludePath>$(projectdir)..\..\libusb-1.0.20\include\libusb-1.0;$(projectdir)..\..\libpthread-2-9-1-win\include;$(IncludePath)</IncludePath>
+     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <LibraryPath>..\..\libusb-1.0.20\MS64\dll;..\..\libpthread-2-9-1-win\lib\x64;$(LibraryPath)</LibraryPath>
+-    <IncludePath>..\..\libusb-1.0.20\include\libusb-1.0;..\..\libpthread-2-9-1-win\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
++    <LibraryPath>$(projectdir)..\..\libusb-1.0.20\MS64\dll;$(projectdir)..\..\libpthread-2-9-1-win\lib\x64;$(LibraryPath)</LibraryPath>
++    <IncludePath>$(projectdir)..\..\libusb-1.0.20\include\libusb-1.0;$(projectdir)..\..\libpthread-2-9-1-win\include;$(IncludePath)</IncludePath>
+     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+   </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+@@ -116,9 +117,10 @@
+       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+       <WarningLevel>Level3</WarningLevel>
+-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>HAVE_STRUCT_TIMESPEC;WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+       <FloatingPointModel>Fast</FloatingPointModel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR=\"Debug\";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -161,9 +163,10 @@
+       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+       <WarningLevel>Level3</WarningLevel>
+-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>HAVE_STRUCT_TIMESPEC;WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+       <FloatingPointModel>Fast</FloatingPointModel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR=\"Debug\";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -205,7 +208,7 @@
+       <WarningLevel>Level3</WarningLevel>
+       <DebugInformationFormat>
+       </DebugInformationFormat>
+-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>HAVE_STRUCT_TIMESPEC;WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Qvec-report:2 %(AdditionalOptions)</AdditionalOptions>
+       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+@@ -215,6 +218,7 @@
+       <OmitFramePointers>true</OmitFramePointers>
+       <WholeProgramOptimization>true</WholeProgramOptimization>
+       <FloatingPointExceptions>false</FloatingPointExceptions>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -256,7 +260,7 @@
+       <WarningLevel>Level3</WarningLevel>
+       <DebugInformationFormat>
+       </DebugInformationFormat>
+-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>HAVE_STRUCT_TIMESPEC;WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+       <AdditionalOptions>/Qvec-report:2 %(AdditionalOptions)</AdditionalOptions>
+       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+@@ -266,6 +270,7 @@
+       <OmitFramePointers>true</OmitFramePointers>
+       <WholeProgramOptimization>true</WholeProgramOptimization>
+       <FloatingPointExceptions>false</FloatingPointExceptions>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";airspy_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -306,6 +311,7 @@
+     <ClInclude Include="..\src\filters.h" />
+     <ClInclude Include="..\src\iqconverter_float.h" />
+     <ClInclude Include="..\src\iqconverter_int16.h" />
++    <ClInclude Include="..\src\win32\resource.h" />
+   </ItemGroup>
+   <ItemGroup>
+     <ResourceCompile Include="..\src\win32\airspy.rc" />
+diff --git a/libairspy/vc/airspy_2013.sln b/libairspy/vc/airspy_2019.sln
+similarity index 100%
+rename from libairspy/vc/airspy_2013.sln
+rename to libairspy/vc/airspy_2019.sln
+diff --git a/libairspy/vc/airspy_gpio_2013.vcxproj b/libairspy/vc/airspy_gpio_2013.vcxproj
+index 6eae6b9..64191a3 100644
+--- a/libairspy/vc/airspy_gpio_2013.vcxproj
++++ b/libairspy/vc/airspy_gpio_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_gpio</ProjectName>
+-    <ProjectGuid>{F4938DB0-3DE7-4737-9C5A-EAD1BE819F87}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_gpio.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_gpio</ProjectName>
++    <ProjectGuid>{F4938DB0-3DE7-4737-9C5A-EAD1BE819F87}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_gpio.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_gpiodir_2013.vcxproj b/libairspy/vc/airspy_gpiodir_2013.vcxproj
+index cc05791..d0ca13d 100644
+--- a/libairspy/vc/airspy_gpiodir_2013.vcxproj
++++ b/libairspy/vc/airspy_gpiodir_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_gpiodir</ProjectName>
+-    <ProjectGuid>{7FA0181B-9A58-44FB-93C4-E7447C532C14}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_gpiodir.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_gpiodir</ProjectName>
++    <ProjectGuid>{7FA0181B-9A58-44FB-93C4-E7447C532C14}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_gpiodir.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_info_2013.vcxproj b/libairspy/vc/airspy_info_2013.vcxproj
+index be210d3..186ff5d 100644
+--- a/libairspy/vc/airspy_info_2013.vcxproj
++++ b/libairspy/vc/airspy_info_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_info</ProjectName>
+-    <ProjectGuid>{C5B0AEB4-E59B-49E8-964B-69A584DB7CF1}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_info.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_info</ProjectName>
++    <ProjectGuid>{C5B0AEB4-E59B-49E8-964B-69A584DB7CF1}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_info.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_lib_version_2013.vcxproj b/libairspy/vc/airspy_lib_version_2013.vcxproj
+index b8e4749..48db2c5 100644
+--- a/libairspy/vc/airspy_lib_version_2013.vcxproj
++++ b/libairspy/vc/airspy_lib_version_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_lib_version</ProjectName>
+-    <ProjectGuid>{FB70E4C7-4299-4B0B-81C5-5F081274F985}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_lib_version.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_lib_version</ProjectName>
++    <ProjectGuid>{FB70E4C7-4299-4B0B-81C5-5F081274F985}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_lib_version.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_r820t_2013.vcxproj b/libairspy/vc/airspy_r820t_2013.vcxproj
+index 2c66247..5a44f26 100644
+--- a/libairspy/vc/airspy_r820t_2013.vcxproj
++++ b/libairspy/vc/airspy_r820t_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_r820t</ProjectName>
+-    <ProjectGuid>{8E3ABDB6-7566-48C4-962F-B20AE2BB614A}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_r820t.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_r820t</ProjectName>
++    <ProjectGuid>{8E3ABDB6-7566-48C4-962F-B20AE2BB614A}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_r820t.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_rx_2013.vcxproj b/libairspy/vc/airspy_rx_2013.vcxproj
+index 915aa67..656332f 100644
+--- a/libairspy/vc/airspy_rx_2013.vcxproj
++++ b/libairspy/vc/airspy_rx_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_rx</ProjectName>
+-    <ProjectGuid>{3AFB2325-FEE6-4949-A706-29F4FB10A7E5}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_rx.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_rx</ProjectName>
++    <ProjectGuid>{3AFB2325-FEE6-4949-A706-29F4FB10A7E5}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_rx.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_si5351c_2013.vcxproj b/libairspy/vc/airspy_si5351c_2013.vcxproj
+index 7ee4e47..0575fa7 100644
+--- a/libairspy/vc/airspy_si5351c_2013.vcxproj
++++ b/libairspy/vc/airspy_si5351c_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_si5351c</ProjectName>
+-    <ProjectGuid>{FE48E20A-DE77-4876-8668-B4F1BA09E7E2}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_si5351c.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_si5351c</ProjectName>
++    <ProjectGuid>{FE48E20A-DE77-4876-8668-B4F1BA09E7E2}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_si5351c.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+diff --git a/libairspy/vc/airspy_spiflash_2013.vcxproj b/libairspy/vc/airspy_spiflash_2013.vcxproj
+index 4071582..b0e2137 100644
+--- a/libairspy/vc/airspy_spiflash_2013.vcxproj
++++ b/libairspy/vc/airspy_spiflash_2013.vcxproj
+@@ -1,172 +1,177 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
+-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+-  <ItemGroup Label="ProjectConfigurations">
+-    <ProjectConfiguration Include="Debug|Win32">
+-      <Configuration>Debug</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Debug|x64">
+-      <Configuration>Debug</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|Win32">
+-      <Configuration>Release</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+-    <ProjectConfiguration Include="Release|x64">
+-      <Configuration>Release</Configuration>
+-      <Platform>x64</Platform>
+-    </ProjectConfiguration>
+-  </ItemGroup>
+-  <PropertyGroup Label="Globals">
+-    <ProjectName>airspy_spiflash</ProjectName>
+-    <ProjectGuid>{47846DAA-BB23-4E49-9E90-31CCC9AB01A8}</ProjectGuid>
+-    <RootNamespace>
+-    </RootNamespace>
+-    <Keyword>Win32Proj</Keyword>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120_xp</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+-    <ConfigurationType>Application</ConfigurationType>
+-    <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v120</PlatformToolset>
+-  </PropertyGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+-  <ImportGroup Label="ExtensionSettings">
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+-  </ImportGroup>
+-  <PropertyGroup Label="UserMacros" />
+-  <PropertyGroup>
+-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
+-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+-  </PropertyGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <Optimization>Disabled</Optimization>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX86</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+-    <BuildLog>
+-      <Path>$(IntDir)$(ProjectName).htm</Path>
+-    </BuildLog>
+-    <Midl>
+-      <TargetEnvironment>X64</TargetEnvironment>
+-    </Midl>
+-    <ClCompile>
+-      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+-      <WarningLevel>Level3</WarningLevel>
+-    </ClCompile>
+-    <Link>
+-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+-      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
+-      <SubSystem>Console</SubSystem>
+-      <TargetMachine>MachineX64</TargetMachine>
+-    </Link>
+-  </ItemDefinitionGroup>
+-  <ItemGroup>
+-    <ClCompile Include="..\..\airspy-tools\src\airspy_spiflash.c" />
+-  </ItemGroup>
+-  <ItemGroup>
+-    <ProjectReference Include="airspy_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-    <ProjectReference Include="getopt_2013.vcxproj">
+-      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
+-    </ProjectReference>
+-  </ItemGroup>
+-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+-  <ImportGroup Label="ExtensionTargets">
+-  </ImportGroup>
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectName>airspy_spiflash</ProjectName>
++    <ProjectGuid>{47846DAA-BB23-4E49-9E90-31CCC9AB01A8}</ProjectGuid>
++    <RootNamespace>
++    </RootNamespace>
++    <Keyword>Win32Proj</Keyword>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <CharacterSet>Unicode</CharacterSet>
++    <PlatformToolset>v142</PlatformToolset>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup>
++    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <Optimization>Disabled</Optimization>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX86</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <BuildLog>
++      <Path>$(IntDir)$(ProjectName).htm</Path>
++    </BuildLog>
++    <Midl>
++      <TargetEnvironment>X64</TargetEnvironment>
++    </Midl>
++    <ClCompile>
++      <AdditionalIncludeDirectories>..\src;.\getopt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
++      <WarningLevel>Level3</WarningLevel>
++      <LanguageStandard_C>stdc11</LanguageStandard_C>
++    </ClCompile>
++    <Link>
++      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <ProgramDatabaseFile>$(TargetDir)$(ProjectName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <TargetMachine>MachineX64</TargetMachine>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <ClCompile Include="..\..\airspy-tools\src\airspy_spiflash.c" />
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="airspy_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++    <ProjectReference Include="getopt_2013.vcxproj">
++      <Project>{7a6c1d5c-37fc-436e-8e7b-1eb3b2b3716d}</Project>
++    </ProjectReference>
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
+ </Project>
+\ No newline at end of file
+-- 
+2.30.2
+
