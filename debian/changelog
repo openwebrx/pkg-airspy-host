@@ -1,3 +1,9 @@
+airspyone-host (1.0.10-2~owrx1) UNRELEASED; urgency=low
+
+  * restore vendor udev rules
+
+ -- Jakob Ketterl <jakob.ketterl@gmx.de>  Fri, 20 Oct 2023 23:34:00 +0000
+
 airspyone-host (1.0.10-2) unstable; urgency=medium
 
   * update to v1.0.10-6-g41c439f
