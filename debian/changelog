@@ -1,4 +1,4 @@
-airspyone-host (1.0.10-2~owrx1) UNRELEASED; urgency=low
+airspyone-host (1.0.10-2+owrx1) UNRELEASED; urgency=low
 
   * restore vendor udev rules
 
