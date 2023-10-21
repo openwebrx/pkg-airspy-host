@@ -1,0 +1,6 @@
+airspy-tools/
+cmake/
+libairspy/
+.travis.yml
+CMakeLists.txt
+README.md
